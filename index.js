@@ -56,6 +56,27 @@ const run = async() => {
 
         })
 
+        // post profile
+        app.put('/profile/:email', async(req, res) => {
+            const email = req.params.email;
+            const profile = req.body;
+            const filter = {email: email};
+            const options = {upsert : true};
+            const updatedDoc = {
+                $set: profile,
+            };
+            const result = await profilesCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
+
+        // get profile
+        app.get('/profile/:email', async(req, res) => {
+            const email = req.params.email;
+            const query = {email: email}
+            const profile = await profilesCollection.findOne(query);
+            res.send(profile);
+        })
+
     }finally{
 
     }
