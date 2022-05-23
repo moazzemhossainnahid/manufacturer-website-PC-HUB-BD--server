@@ -21,6 +21,8 @@ const run = async() => {
     try{
         await client.connect();
         const productsCollection = client.db("PCHubBD").collection("Products");
+        const usersCollection = client.db("PCHubBD").collection("Users");
+        const profilesCollection = client.db("PCHubBD").collection("Profiles");
 
         // get products
         app.get('/products', async(req, res) => {
@@ -36,6 +38,22 @@ const run = async() => {
             const query = {_id: ObjectId(id)};
             const product = await productsCollection.findOne(query);
             res.send(product);
+        })
+
+
+        // Post user
+        app.put('/user/:email', async(req, res)=> {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = {email: email};
+            const options = {upsert : true};
+            const updatedDoc = {
+                $set: user,
+            };
+            const result = await usersCollection.updateOne(filter, updatedDoc, options);
+            const token = jwt.sign({email:email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1d'})
+            res.send({result, accessToken: token});
+
         })
 
     }finally{
