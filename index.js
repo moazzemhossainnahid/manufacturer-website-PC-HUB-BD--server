@@ -11,6 +11,25 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cors());
 
+// Get JWT Token
+
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if(!authHeader){
+        return res.status(401).send({message: 'UnAuthorized Aceess'})
+    }
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if(err){
+            return res.status(403).send({message: 'Forbidden Access'})
+        }
+        // console.log('decoded', decoded);
+        req.decoded = decoded;
+    })
+    // console.log('Inside VerifyJWT',authHeader);
+    next();
+}
+
 
 
 
@@ -23,6 +42,7 @@ const run = async() => {
         const productsCollection = client.db("PCHubBD").collection("Products");
         const usersCollection = client.db("PCHubBD").collection("Users");
         const profilesCollection = client.db("PCHubBD").collection("Profiles");
+
 
         // get products
         app.get('/products', async(req, res) => {
@@ -56,6 +76,14 @@ const run = async() => {
 
         })
 
+        
+        // get users
+        app.get('/users', verifyToken, async(req, res) => {
+            const users = await usersCollection.find().toArray();
+            res.send(users);
+        })
+
+
         // post profile
         app.put('/profile/:email', async(req, res) => {
             const email = req.params.email;
@@ -70,7 +98,7 @@ const run = async() => {
         })
 
         // get profile
-        app.get('/profile/:email', async(req, res) => {
+        app.get('/profile/:email', verifyToken, async(req, res) => {
             const email = req.params.email;
             const query = {email: email}
             const profile = await profilesCollection.findOne(query);
