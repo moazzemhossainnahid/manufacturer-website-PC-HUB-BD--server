@@ -42,6 +42,7 @@ const run = async() => {
         const productsCollection = client.db("PCHubBD").collection("Products");
         const usersCollection = client.db("PCHubBD").collection("Users");
         const profilesCollection = client.db("PCHubBD").collection("Profiles");
+        const blogsCollection = client.db("PCHubBD").collection("Blogs");
 
 
         // get products
@@ -120,10 +121,6 @@ const run = async() => {
         })
 
 
-        
-
-
-        
         // get users
         app.get('/users', async(req, res) => {
             const users = await usersCollection.find().toArray();
@@ -150,6 +147,12 @@ const run = async() => {
             const query = {email: email}
             const profile = await profilesCollection.findOne(query);
             res.send(profile);
+        })
+
+        // get blogs
+        app.get('/blogs', async(req, res) => {
+            const blogs = await blogsCollection.find().toArray();
+            res.send(blogs);
         })
 
     }finally{
