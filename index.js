@@ -61,6 +61,49 @@ const run = async() => {
         })
 
 
+        // Post Admin Role
+        app.put('/user/admin/:email', verifyToken, async(req, res)=> {
+            const email = req.params.email;
+            const requester = req.decoded.email;
+            const recuesteraccount = await usersCollection.findOne({email: requester});
+            if(recuesteraccount.role === 'admin'){
+                const filter = {email: email};
+                const updatedDoc = {
+                    $set: {role: 'admin'},
+                };
+                const result = await usersCollection.updateOne(filter, updatedDoc);
+                res.send(result);
+            }else{
+                return res.status(403).send({message: 'Forbidden Aceess'})
+            }
+
+
+        })
+
+                
+        
+        // Remove Admin
+        app.put('/user/removeadmin/:email', verifyToken, async(req, res)=> {
+            const email = req.params.email;
+            const filter = {email: email};
+            const updatedDoc = {
+                $set: {role: ''},
+            };
+            const result = await usersCollection.updateOne(filter, updatedDoc);
+            res.send(result);
+
+        })
+
+
+        // get admin
+        app.get('/user/admin/:email', async(req, res) => {
+            const email = req.params.email;
+            const user = await usersCollection.findOne({email: email});
+            const isAdmin = user.role === 'admin';
+            res.send({admin: isAdmin});
+        })
+
+
         // Post user
         app.put('/user/:email', async(req, res)=> {
             const email = req.params.email;
@@ -76,9 +119,13 @@ const run = async() => {
 
         })
 
+
+        
+
+
         
         // get users
-        app.get('/users', verifyToken, async(req, res) => {
+        app.get('/users', async(req, res) => {
             const users = await usersCollection.find().toArray();
             res.send(users);
         })
@@ -98,7 +145,7 @@ const run = async() => {
         })
 
         // get profile
-        app.get('/profile/:email', verifyToken, async(req, res) => {
+        app.get('/profile/:email', async(req, res) => {
             const email = req.params.email;
             const query = {email: email}
             const profile = await profilesCollection.findOne(query);
