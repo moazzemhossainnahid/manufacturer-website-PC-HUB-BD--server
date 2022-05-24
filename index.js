@@ -11,6 +11,8 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cors());
 
+
+
 // Get JWT Token
 
 const verifyToken = (req, res, next) => {
@@ -43,6 +45,7 @@ const run = async() => {
         const usersCollection = client.db("PCHubBD").collection("Users");
         const profilesCollection = client.db("PCHubBD").collection("Profiles");
         const blogsCollection = client.db("PCHubBD").collection("Blogs");
+        const ordersCollection = client.db("PCHubBD").collection("Orders");
 
 
         // get products
@@ -53,12 +56,20 @@ const run = async() => {
             res.send(result);
         })
 
-        // get product
+        // get product by id
         app.get('/product/:id', async(req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const product = await productsCollection.findOne(query);
             res.send(product);
+        })
+
+
+        // post order
+        app.post('/orders', async(req, res) => {
+            const order = req.body;
+            const result = await ordersCollection.insertOne(order);
+            res.send(result)
         })
 
 
@@ -77,7 +88,6 @@ const run = async() => {
             }else{
                 return res.status(403).send({message: 'Forbidden Aceess'})
             }
-
 
         })
 
@@ -105,7 +115,7 @@ const run = async() => {
         })
 
 
-        // Post user
+        // Post user by email
         app.put('/user/:email', async(req, res)=> {
             const email = req.params.email;
             const user = req.body;
@@ -128,7 +138,7 @@ const run = async() => {
         })
 
 
-        // post profile
+        // post profile by email
         app.put('/profile/:email', async(req, res) => {
             const email = req.params.email;
             const profile = req.body;
@@ -141,7 +151,7 @@ const run = async() => {
             res.send(result);
         })
 
-        // get profile
+        // get profile by email
         app.get('/profile/:email', async(req, res) => {
             const email = req.params.email;
             const query = {email: email}
@@ -155,7 +165,7 @@ const run = async() => {
             res.send(blogs);
         })
 
-        // get product
+        // get blog by id
         app.get('/blog/:id', async(req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
