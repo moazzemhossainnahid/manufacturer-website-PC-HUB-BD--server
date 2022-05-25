@@ -64,12 +64,33 @@ const run = async() => {
             res.send(product);
         })
 
+        // post product
+        app.post('/product', verifyToken, async(req, res) => {
+            const product = req.body;
+            const result = await productsCollection.insertOne(product);
+            res.send(result)
+        })
 
         // post order
         app.post('/orders', async(req, res) => {
             const order = req.body;
             const result = await ordersCollection.insertOne(order);
             res.send(result)
+        })
+
+        // get order
+        app.get('/orders', async(req, res) => {
+            const query = {};
+            const result = await ordersCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        // get order by email
+        app.get('/orders/:email', async(req, res) => {
+            const email = req.params.email;
+            const query = {email: email};
+            const result = await ordersCollection.find(query).toArray();
+            res.send(result);
         })
 
 
