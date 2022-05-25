@@ -46,6 +46,7 @@ const run = async() => {
         const profilesCollection = client.db("PCHubBD").collection("Profiles");
         const blogsCollection = client.db("PCHubBD").collection("Blogs");
         const ordersCollection = client.db("PCHubBD").collection("Orders");
+        const reviewsCollection = client.db("PCHubBD").collection("Reviews");
 
 
         // get products
@@ -215,6 +216,27 @@ const run = async() => {
             const query = {_id: ObjectId(id)};
             const blog = await blogsCollection.findOne(query);
             res.send(blog);
+        })
+
+        // get reviews
+        app.get('/reviews', async(req, res) => {
+            const reviews = await reviewsCollection.find().toArray();
+            res.send(reviews);
+        })
+
+        // post reviews
+        app.post('/review', verifyToken, async(req, res) => {
+            const review = req.body;
+            const result = await reviewsCollection.insertOne(review);
+            res.send(result)
+        })
+
+        // get reviews by email
+        app.get('/reviews/:email', async(req, res) => {
+            const email = req.params.email;
+            const query = {email: email}
+            const reviews = await reviewsCollection.find(query).toArray();
+            res.send(reviews);
         })
         
 
