@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 
 // middleware
@@ -67,7 +66,7 @@ const run = async() => {
         })
 
         // post product
-        app.post('/product', async(req, res) => {
+        app.post('/product', verifyToken, async(req, res) => {
             const product = req.body;
             const result = await productsCollection.insertOne(product);
             res.send(result)
@@ -75,7 +74,7 @@ const run = async() => {
 
                 
         // update product
-        app.put('/updateproduct/:id', async(req, res)=> {
+        app.put('/updateproduct/:id', verifyToken, async(req, res)=> {
             const id = req.params.id;
             const product = req.body;
             const filter = {_id: ObjectId(id)};
@@ -88,8 +87,8 @@ const run = async() => {
 
         })
 
-        // delete Product
-        app.delete('/product/:id', async(req, res) => {
+        // delete product
+        app.delete('/product/:id', verifyToken, async(req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const result = await productsCollection.deleteOne(query);
@@ -110,13 +109,13 @@ const run = async() => {
             res.send(result);
         })
 
-        // get order by id
-        app.get('/order/:id', async(req, res) => {
-            const id = req.params.id;
-            const query = {_id: ObjectId(id)};
-            const result = await ordersCollection.findOne(query);
-            res.send(result);
-        }) 
+        // // get order by id
+        // app.get('/order/:id', async(req, res) => {
+        //     const id = req.params.id;
+        //     const query = {_id: ObjectId(id)};
+        //     const result = await ordersCollection.findOne(query);
+        //     res.send(result);
+        // })
 
         // get order by email
         app.get('/orders/:email', async(req, res) => {
@@ -126,26 +125,17 @@ const run = async() => {
             res.send(result);
         })
 
-        
-        // delete Order
-        app.delete('/order/:id', async(req, res) => {
-            const id = req.params.id;
-            const query = {_id: ObjectId(id)}; 
-            const result = await ordersCollection.deleteOne(query);
-            res.send(result);
-        })
-
 
         // Post Admin Role
-        app.put('/user/admin/:email', async(req, res)=> {
+        app.put('/user/admin/:email', verifyToken, async(req, res)=> {
             const email = req.params.email;
-            const requester = req.decoded.email;
+            const requester = req.decoded?.email;
             const recuesteraccount = await usersCollection.findOne({email: requester});
             if(recuesteraccount.role === 'admin'){
                 const filter = {email: email};
                 const updatedDoc = {
                     $set: {role: 'admin'},
-                }; 
+                };
                 const result = await usersCollection.updateOne(filter, updatedDoc);
                 res.send(result);
             }else{
@@ -157,7 +147,7 @@ const run = async() => {
                 
         
         // Remove Admin
-        app.put('/user/removeadmin/:email', async(req, res)=> {
+        app.put('/user/removeadmin/:email', verifyToken, async(req, res)=> {
             const email = req.params.email;
             const filter = {email: email};
             const updatedDoc = {
@@ -168,18 +158,18 @@ const run = async() => {
 
         })
 
-
+ 
         // get admin
-        app.get('/user/admin/:email', async(req, res) => {
+        app.get('/user/admin/:email', verifyToken, async(req, res) => {
             const email = req.params.email;
             const user = await usersCollection.findOne({email: email});
-            const isAdmin = user?.role === 'admin';
+            const isAdmin = user.role === 'admin';
             res.send({admin: isAdmin});
         })
 
 
         // Post user by email
-        app.put('/user/:email', async(req, res)=> {
+        app.put('/user/:email', verifyToken, async(req, res)=> {
             const email = req.params.email;
             const user = req.body;
             const filter = {email: email};
@@ -192,17 +182,17 @@ const run = async() => {
             res.send({result, accessToken: token});
 
         })
-
+ 
 
         // get users
-        app.get('/users', async(req, res) => {
+        app.get('/users', verifyToken, async(req, res) => {
             const users = await usersCollection.find().toArray();
             res.send(users);
         })
 
 
         // post profile by email
-        app.put('/profile/:email', async(req, res) => {
+        app.put('/profile/:email', verifyToken, async(req, res) => {
             const email = req.params.email;
             const profile = req.body;
             const filter = {email: email};
@@ -243,7 +233,7 @@ const run = async() => {
         })
 
         // post reviews
-        app.post('/review', async(req, res) => {
+        app.post('/review', verifyToken, async(req, res) => {
             const review = req.body;
             const result = await reviewsCollection.insertOne(review);
             res.send(result)
@@ -251,33 +241,12 @@ const run = async() => {
 
         // get reviews by email
         app.get('/reviews/:email', async(req, res) => {
-            const email = req.params.email;
+            const email = req.params.email; 
             const query = {email: email}
             const reviews = await reviewsCollection.find(query).toArray();
             res.send(reviews);
         })
-
-        // delete Review
-        app.delete('/review/:id', async(req, res) => {
-            const id = req.params.id;
-            const query = {_id: ObjectId(id)}; 
-            const result = await reviewsCollection.deleteOne(query);
-            res.send(result);
-        })
-
-  
-        // // payment
-        // app.post('/create-payment-intent', verifyToken, async(req, res) => {
-        //     const {price} = req.body;
-        //     const amount = price * 100;
-        //     const paymentIntent = await stripe.paymentIntents.create({
-        //         amount: amount,
-        //         currency: 'usd',
-        //         payment_method_types: ['card']
-        //     });
-        //     res.send({clientSecret: paymentIntent.client_secret}) 
-        // }) 
-          
+        
 
     }finally{
 
