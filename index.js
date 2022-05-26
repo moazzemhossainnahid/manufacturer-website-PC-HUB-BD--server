@@ -116,7 +116,7 @@ const run = async() => {
             const query = {_id: ObjectId(id)};
             const result = await ordersCollection.findOne(query);
             res.send(result);
-        })
+        }) 
 
         // get order by email
         app.get('/orders/:email', async(req, res) => {
@@ -257,7 +257,7 @@ const run = async() => {
             res.send(reviews);
         })
 
-
+  
         // payment
         app.post('/create-payment-intent', verifyToken, async(req, res) => {
             const {price} = req.body;
@@ -268,8 +268,8 @@ const run = async() => {
                 payment_method_types: ['card']
             });
             res.send({clientSecret: paymentIntent.client_secret}) 
-        })
-        
+        }) 
+          
 
     }finally{
 
