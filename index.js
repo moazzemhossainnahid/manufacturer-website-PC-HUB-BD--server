@@ -257,6 +257,14 @@ const run = async() => {
             res.send(reviews);
         })
 
+        // delete Review
+        app.delete('/review/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)}; 
+            const result = await reviewsCollection.deleteOne(query);
+            res.send(result);
+        })
+
   
         // // payment
         // app.post('/create-payment-intent', verifyToken, async(req, res) => {
