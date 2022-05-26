@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 
 // middleware
@@ -87,7 +88,7 @@ const run = async() => {
 
         })
 
-        // delete inventory
+        // delete Product
         app.delete('/product/:id', async(req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
@@ -109,11 +110,28 @@ const run = async() => {
             res.send(result);
         })
 
+        // get order by id
+        app.get('/order/:id', verifyToken, async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await ordersCollection.findOne(query);
+            res.send(result);
+        })
+
         // get order by email
         app.get('/orders/:email', async(req, res) => {
             const email = req.params.email;
             const query = {email: email};
             const result = await ordersCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        
+        // delete Order
+        app.delete('/order/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)}; 
+            const result = await ordersCollection.deleteOne(query);
             res.send(result);
         })
 
@@ -127,7 +145,7 @@ const run = async() => {
                 const filter = {email: email};
                 const updatedDoc = {
                     $set: {role: 'admin'},
-                };
+                }; 
                 const result = await usersCollection.updateOne(filter, updatedDoc);
                 res.send(result);
             }else{
@@ -155,7 +173,7 @@ const run = async() => {
         app.get('/user/admin/:email', async(req, res) => {
             const email = req.params.email;
             const user = await usersCollection.findOne({email: email});
-            const isAdmin = user.role === 'admin';
+            const isAdmin = user?.role === 'admin';
             res.send({admin: isAdmin});
         })
 
@@ -237,6 +255,19 @@ const run = async() => {
             const query = {email: email}
             const reviews = await reviewsCollection.find(query).toArray();
             res.send(reviews);
+        })
+
+
+        // payment
+        app.post('/create-payment-intent', verifyToken, async(req, res) => {
+            const {price} = req.body;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+            res.send({clientSecret: paymentIntent.client_secret}) 
         })
         
 
