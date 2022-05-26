@@ -32,7 +32,7 @@ const verifyToken = (req, res, next) => {
     next();
 }
 
-
+  
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hmmg8.mongodb.net/?retryWrites=true&w=majority`;
@@ -169,7 +169,7 @@ const run = async() => {
 
 
         // Post user by email
-        app.put('/user/:email', verifyToken, async(req, res)=> {
+        app.put('/user/:email', async(req, res)=> {
             const email = req.params.email;
             const user = req.body;
             const filter = {email: email};
@@ -183,7 +183,7 @@ const run = async() => {
 
         })
  
-
+ 
         // get users
         app.get('/users', verifyToken, async(req, res) => {
             const users = await usersCollection.find().toArray();
@@ -203,7 +203,7 @@ const run = async() => {
             const result = await profilesCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
         })
-
+  
         // get profile by email
         app.get('/profile/:email', async(req, res) => {
             const email = req.params.email;
@@ -245,6 +245,14 @@ const run = async() => {
             const query = {email: email}
             const reviews = await reviewsCollection.find(query).toArray();
             res.send(reviews);
+        })
+
+        // delete review
+        app.delete('/review/:id', verifyToken, async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await reviewsCollection.deleteOne(query);
+            res.send(result);
         })
         
 
