@@ -243,7 +243,7 @@ const run = async() => {
         })
 
         // post reviews
-        app.post('/review', verifyToken, async(req, res) => {
+        app.post('/review', async(req, res) => {
             const review = req.body;
             const result = await reviewsCollection.insertOne(review);
             res.send(result)
@@ -258,17 +258,17 @@ const run = async() => {
         })
 
   
-        // payment
-        app.post('/create-payment-intent', verifyToken, async(req, res) => {
-            const {price} = req.body;
-            const amount = price * 100;
-            const paymentIntent = await stripe.paymentIntents.create({
-                amount: amount,
-                currency: 'usd',
-                payment_method_types: ['card']
-            });
-            res.send({clientSecret: paymentIntent.client_secret}) 
-        }) 
+        // // payment
+        // app.post('/create-payment-intent', verifyToken, async(req, res) => {
+        //     const {price} = req.body;
+        //     const amount = price * 100;
+        //     const paymentIntent = await stripe.paymentIntents.create({
+        //         amount: amount,
+        //         currency: 'usd',
+        //         payment_method_types: ['card']
+        //     });
+        //     res.send({clientSecret: paymentIntent.client_secret}) 
+        // }) 
           
 
     }finally{
