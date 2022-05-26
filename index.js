@@ -67,7 +67,7 @@ const run = async() => {
         })
 
         // post product
-        app.post('/product', verifyToken, async(req, res) => {
+        app.post('/product', async(req, res) => {
             const product = req.body;
             const result = await productsCollection.insertOne(product);
             res.send(result)
@@ -75,7 +75,7 @@ const run = async() => {
 
                 
         // update product
-        app.put('/updateproduct/:id', verifyToken, async(req, res)=> {
+        app.put('/updateproduct/:id', async(req, res)=> {
             const id = req.params.id;
             const product = req.body;
             const filter = {_id: ObjectId(id)};
@@ -111,7 +111,7 @@ const run = async() => {
         })
 
         // get order by id
-        app.get('/order/:id', verifyToken, async(req, res) => {
+        app.get('/order/:id', async(req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const result = await ordersCollection.findOne(query);
@@ -137,7 +137,7 @@ const run = async() => {
 
 
         // Post Admin Role
-        app.put('/user/admin/:email', verifyToken, async(req, res)=> {
+        app.put('/user/admin/:email', async(req, res)=> {
             const email = req.params.email;
             const requester = req.decoded.email;
             const recuesteraccount = await usersCollection.findOne({email: requester});
@@ -157,7 +157,7 @@ const run = async() => {
                 
         
         // Remove Admin
-        app.put('/user/removeadmin/:email', verifyToken, async(req, res)=> {
+        app.put('/user/removeadmin/:email', async(req, res)=> {
             const email = req.params.email;
             const filter = {email: email};
             const updatedDoc = {
