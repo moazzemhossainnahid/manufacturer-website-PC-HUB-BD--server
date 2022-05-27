@@ -48,6 +48,7 @@ const run = async() => {
         const blogsCollection = client.db("PCHubBD").collection("Blogs");
         const ordersCollection = client.db("PCHubBD").collection("Orders");
         const reviewsCollection = client.db("PCHubBD").collection("Reviews");
+        const paymentsCollection = client.db("PCHubBD").collection("Payments");
 
 
         // get products
@@ -134,7 +135,23 @@ const run = async() => {
             res.send(result);
         })
 
+        // get order by email
+        app.patch('/order/:id', verifyToken, async(req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = {_id: ObjectId(id)};
+            const updatedDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId,
+                }
+            }
+            const result = await paymentsCollection.updateOne(payment);
+            const updateOrder = await ordersCollection.updateOne(filter, updatedDoc);
+            res.send(updatedDoc);
+        })
 
+ 
         // Post Admin Role
         app.put('/user/admin/:email', verifyToken, async(req, res)=> {
             const email = req.params.email;
@@ -273,11 +290,11 @@ const run = async() => {
             res.send(result);
         })
 
-
+ 
         // get payment intent
         app.post('/create-payment-intent', verifyToken, async(req, res) => {
-            const {price} = req.body;
-            const amount = price / 100;
+            const {orderValue} = req.body;
+            const amount = orderValue * 100;
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount,
                 currency: 'usd',
