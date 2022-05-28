@@ -170,7 +170,7 @@ const run = async() => {
 
         })
 
-                
+                   
         
         // Remove Admin
         app.put('/user/removeadmin/:email', verifyToken, async(req, res)=> {
@@ -299,6 +299,7 @@ const run = async() => {
                 amount: amount,
                 currency: 'usd',
                 payment_method_types: ['card']
+
             });
             res.send({clientSecret: paymentIntent.client_secret})
         })
