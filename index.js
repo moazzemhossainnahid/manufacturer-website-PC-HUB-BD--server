@@ -135,21 +135,21 @@ const run = async() => {
             res.send(result);
         })
 
-        // get order by email
-        app.patch('/order/:id', verifyToken, async(req, res) => {
-            const id = req.params.id;
-            const payment = req.body;
-            const filter = {_id: ObjectId(id)};
-            const updatedDoc = {
-                $set: {
-                    paid: true,
-                    transactionId: payment.transactionId,
-                }
-            }
-            const result = await paymentsCollection.updateOne(payment);
-            const updateOrder = await ordersCollection.updateOne(filter, updatedDoc);
-            res.send(updatedDoc);
-        })
+        // // get order by email
+        // app.patch('/order/:id', verifyToken, async(req, res) => {
+        //     const id = req.params.id;
+        //     const payment = req.body;
+        //     const filter = {_id: ObjectId(id)};
+        //     const updatedDoc = {
+        //         $set: {
+        //             paid: true,
+        //             transactionId: payment.transactionId,
+        //         }
+        //     }
+        //     const result = await paymentsCollection.updateOne(payment);
+        //     const updateOrder = await ordersCollection.updateOne(filter, updatedDoc);
+        //     res.send(updatedDoc);
+        // })
 
  
         // Post Admin Role
