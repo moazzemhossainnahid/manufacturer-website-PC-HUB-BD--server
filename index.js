@@ -41,7 +41,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 const run = async() => {
     try{
-       await client.connect();
+        client.connect();
         const productsCollection = client.db("PCHubBD").collection("Products");
         const usersCollection = client.db("PCHubBD").collection("Users");
         const profilesCollection = client.db("PCHubBD").collection("Profiles");
