@@ -37,11 +37,11 @@ const verifyToken = (req, res, next) => {
 
 
 const uri = `mongodb+srv://pchubbdadmin:GGIG6C9uE6YGbohg@cluster0.hmmg8.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 const run = async() => {
     try{
-        client.connect();
+       await client.connect();
         const productsCollection = client.db("PCHubBD").collection("Products");
         const usersCollection = client.db("PCHubBD").collection("Users");
         const profilesCollection = client.db("PCHubBD").collection("Profiles");
